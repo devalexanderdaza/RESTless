@@ -1,8 +1,30 @@
 {
   "name": "restless",
-  "private": true,
+  "description": "RESTless is a complete REST API that works 100% in the browser. Simulated REST API with data persistence that works entirely in the browser. A replacement for json-server without Node.js dependencies or external servers.",
   "version": "0.0.0",
+  "private": false,
+  "license": "MIT",
   "type": "module",
+  "author": {
+    "name": "Alexander Daza",
+    "email": "contacto@alexanderdaza.dev",
+    "url": "https://www.alexanderdaza.dev"
+  },
+  "contributors": [
+    {
+      "name": "Alexander Daza",
+      "email": "dev.alexander.daza@gmail.com",
+      "url": "https://github.com/devalexanderdaza"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devalexanderdaza/RESTless.git"
+  },
+  "bugs": {
+    "url": "https://github.com/devalexanderdaza/RESTless/issues"
+  },
+  "homepage": "https://github.com/devalexanderdaza/RESTless#readme",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -11,5 +33,36 @@
   "devDependencies": {
     "typescript": "~5.7.2",
     "vite": "^6.2.0"
-  }
+  },
+  "keywords": [
+    "rest",
+    "api",
+    "json",
+    "server",
+    "rest-api",
+    "restful",
+    "rest-api-server",
+    "rest-api-client",
+    "rest-api-mock",
+    "rest-api-mock-server",
+    "rest-api-mock-client",
+    "rest-api-mock-data",
+    "serverless",
+    "browser",
+    "typescript",
+    "vite",
+    "json-server",
+    "mock",
+    "mock-server",
+    "mock-api",
+    "mock-data",
+    "mock-rest-api",
+    "mock-rest",
+    "mock-json-server",
+    "mock-json",
+    "mock-json-api",
+    "mock-json-rest",
+    "mock-json-rest-api",
+    "mock-json-rest-server"
+  ]
 }
