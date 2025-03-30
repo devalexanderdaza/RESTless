@@ -231,6 +231,58 @@ button:disabled {
   gap: 10px;
 }
 
+/* Estilos para elementos de ayuda */
+.form-help {
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
+.form-help details {
+  padding: 5px;
+  background-color: #f5f9ff;
+  border-radius: 4px;
+}
+
+.form-help summary {
+  cursor: pointer;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.form-help ul {
+  margin-top: 8px;
+  margin-left: 20px;
+}
+
+.form-help li {
+  margin-bottom: 4px;
+}
+
+.form-help code {
+  background-color: #e9f0fa;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.help-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.help-button {
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  background-color: #e9f0fa;
+  color: var(--primary-color);
+}
+
+.help-button:hover {
+  background-color: #d0e3ff;
+}
+
 /* Estilos adicionales */
 .error {
   color: var(--error-color);

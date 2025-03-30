@@ -1,3 +1,4 @@
+import { QueryParser } from '../core/query';
 import { Server } from '../core/server';
 import { Request, Response } from '../core/types';
 
@@ -18,21 +19,41 @@ export function registerApiEndpoints(server: Server): void {
   // Obtener todos los elementos de una colección
   router.get('/:collection', async (req: Request): Promise<Response> => {
     const { collection } = req.params;
-    const data = db.getAll(collection);
-
-    // Aplicar filtros si hay query params
-    const filteredData = Object.keys(req.query).length
-      ? data.filter((item) => {
-          return Object.entries(req.query).every(([key, value]) => {
-            return String(item[key]) === String(value);
-          });
-        })
-      : data;
-
+    
+    // Parsear opciones de consulta desde los parámetros URL
+    const queryOptions = QueryParser.parseQueryParams(req.query);
+    
+    // Ejecutar consulta
+    const result = db.query(collection, queryOptions);
+    
+    // Preparar encabezados con metadatos de paginación
+    const headers: Record<string, string> = { 
+      'Content-Type': 'application/json' 
+    };
+    
+    // Agregar encabezados de paginación si corresponde
+    if (result.pagination) {
+      headers['X-Total-Count'] = String(result.pagination.total);
+      
+      if (result.pagination.currentPage !== undefined) {
+        headers['X-Page'] = String(result.pagination.currentPage);
+      }
+      
+      if (result.pagination.pageCount !== undefined) {
+        headers['X-Total-Pages'] = String(result.pagination.pageCount);
+      }
+      
+      if (result.pagination.nextCursor !== undefined) {
+        headers['X-Next-Cursor'] = result.pagination.nextCursor;
+      }
+      
+      headers['X-Has-More'] = String(result.pagination.hasMore);
+    }
+    
     return {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: filteredData,
+      headers,
+      body: result.data
     };
   });
 

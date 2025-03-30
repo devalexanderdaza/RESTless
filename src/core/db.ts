@@ -1,6 +1,8 @@
 import { StorageAdapter } from './storage/StorageAdapter';
 import { LocalStorageAdapter } from './storage/LocalStorageAdapter';
 import { IndexedDBAdapter } from './storage/IndexedDBAdapter';
+import { PaginatedResult, QueryProcessor } from './query/QueryProcessor';
+import { QueryOptions, FilterGroup, ComparisonOperator } from './query/types';
 
 export type StorageType = 'localStorage' | 'indexedDB';
 
@@ -177,16 +179,42 @@ export class Database {
   }
 
   /**
-   * Consulta avanzada con filtros
+   * Consulta avanzada con filtros, ordenamiento y paginación
    */
-  public query(collection: string, filters: Record<string, any>): any[] {
+  public query(collection: string, options: QueryOptions): PaginatedResult<any> {
+    if (!this.hasCollection(collection)) {
+      return {
+        data: [],
+        pagination: {
+          total: 0,
+          hasMore: false
+        }
+      };
+    }
+    
+    return QueryProcessor.process(this.data[collection], options);
+  }
+  
+  /**
+   * Consulta simple con filtros de igualdad
+   * Mantiene compatibilidad con versiones anteriores
+   */
+  public queryByFilters(collection: string, filters: Record<string, any>): any[] {
     if (!this.hasCollection(collection)) return [];
     
-    return this.data[collection].filter(item => {
-      return Object.entries(filters).every(([key, value]) => {
-        return item[key] === value;
-      });
-    });
+    // Convertir filtros simples a formato de condición
+    const filterGroup: FilterGroup = {
+      operator: 'and',
+      conditions: Object.entries(filters).map(([field, value]) => ({
+        field,
+        operator: '=' as ComparisonOperator,
+        value
+      }))
+    };
+    
+    // Usar el procesador de consultas
+    const result = QueryProcessor.process(this.data[collection], { filter: filterGroup });
+    return result.data;
   }
 
   /**
