@@ -1,5 +1,6 @@
 import { Database, StorageType } from './db';
 import { Router } from './router';
+import { SchemaDefinition, SchemaRegistry } from './schema';
 import { HttpMethod, Response } from './types';
 
 export interface ServerConfig {
@@ -54,6 +55,9 @@ export class Server {
    */
   public async initialize(initialData: Record<string, any[]> = {}): Promise<void> {
     await this.db.initialize(initialData);
+    
+    // Inicializar el registro de esquemas
+    SchemaRegistry.getInstance().initialize(this.db);
   }
 
   /**
@@ -93,5 +97,12 @@ export class Server {
    */
   public async importData(data: Record<string, any[]>): Promise<void> {
     await this.db.importData(data);
+  }
+
+  /**
+   * Registra un esquema
+   */
+  public registerSchema(schema: SchemaDefinition): void {
+    SchemaRegistry.getInstance().registerSchema(schema);
   }
 }

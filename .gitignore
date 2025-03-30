@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 # Mac
+ROUTE_MAP.md
 package-lock.json
 restless-data.json

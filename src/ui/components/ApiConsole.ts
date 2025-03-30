@@ -156,10 +156,34 @@ export class ApiConsole extends Component {
       this.bodyTextarea.value = '';
     });
     
+    const expandBtn = document.createElement('button');
+    expandBtn.type = 'button';
+    expandBtn.className = 'help-button';
+    expandBtn.innerText = 'Ejemplo de relaciones';
+    expandBtn.addEventListener('click', () => {
+      // Ejemplo de URL con expansión de relaciones
+      this.methodSelect.value = 'GET';
+      this.urlInput.value = '/api/pedidos/1?_expand=true&_expandDepth=2';
+      this.bodyTextarea.value = '';
+    });
+    
+    const schemaBtn = document.createElement('button');
+    schemaBtn.type = 'button';
+    schemaBtn.className = 'help-button';
+    schemaBtn.innerText = 'Ver esquemas';
+    schemaBtn.addEventListener('click', () => {
+      // Ejemplo de URL para ver esquemas
+      this.methodSelect.value = 'GET';
+      this.urlInput.value = '/api/_schemas';
+      this.bodyTextarea.value = '';
+    });
+    
     helpButtonsContainer.appendChild(paginationBtn);
     helpButtonsContainer.appendChild(sortingBtn);
     helpButtonsContainer.appendChild(filteringBtn);
     helpButtonsContainer.appendChild(searchBtn);
+    helpButtonsContainer.appendChild(expandBtn);
+    helpButtonsContainer.appendChild(schemaBtn);
     
     buttonContainer.appendChild(this.sendButton);
     buttonContainer.appendChild(helpButtonsContainer);

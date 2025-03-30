@@ -2,6 +2,7 @@ import { Server } from './core/server';
 import { registerApiEndpoints } from './api/endpoints';
 import { errorHandlerMiddleware, loggerMiddleware, delayMiddleware } from './api/middlewares';
 import { App } from './';
+import { schemas } from './schemas';
 
 // Datos iniciales de ejemplo
 const initialData = {
@@ -46,6 +47,9 @@ async function init() {
     
     // Registrar endpoints
     registerApiEndpoints(server);
+
+    // Registrar esquemas
+    schemas.forEach(schema => server.registerSchema(schema));
     
     // Inicializar con datos
     await server.initialize(initialData);
