@@ -45,13 +45,13 @@ export class Server {
       return {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
-        body: { error: 'Not Found' }
+        body: { error: 'Not Found' },
       };
     }
 
     // Eliminar la URL base del path
     const apiPath = url.substring(this.baseUrl.length);
-    
+
     // Procesar la solicitud a través del router
     return this.router.handleRequest(method, apiPath, headers, body);
   }

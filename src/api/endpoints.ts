@@ -6,13 +6,13 @@ export function registerApiEndpoints(server: Server): void {
   const db = server.getDb();
 
   // Listar todas las colecciones
-  router.get('/', async () => {
+  router.get('/', async (_req: Request): Promise<Response> => {
     const collections = db.getCollections();
-    return {
+    return Promise.resolve({
       status: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: { collections }
-    };
+      body: { collections },
+    });
   });
 
   // Obtener todos los elementos de una colección
@@ -21,8 +21,8 @@ export function registerApiEndpoints(server: Server): void {
     const data = db.getAll(collection);
 
     // Aplicar filtros si hay query params
-    const filteredData = Object.keys(req.query).length 
-      ? data.filter(item => {
+    const filteredData = Object.keys(req.query).length
+      ? data.filter((item) => {
           return Object.entries(req.query).every(([key, value]) => {
             return String(item[key]) === String(value);
           });
@@ -32,7 +32,7 @@ export function registerApiEndpoints(server: Server): void {
     return {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: filteredData
+      body: filteredData,
     };
   });
 
@@ -45,14 +45,14 @@ export function registerApiEndpoints(server: Server): void {
       return {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
-        body: { error: `No se encontró el elemento con ID ${id}` }
+        body: { error: `No se encontró el elemento con ID ${id}` },
       };
     }
 
     return {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: item
+      body: item,
     };
   });
 
@@ -64,30 +64,30 @@ export function registerApiEndpoints(server: Server): void {
       return {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: { error: 'Cuerpo de la solicitud inválido' }
+        body: { error: 'Cuerpo de la solicitud inválido' },
       };
     }
 
     const newItem = db.add(collection, req.body);
     return {
       status: 201,
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        'Location': `/${collection}/${newItem.id}`
+        Location: `/${collection}/${newItem.id}`,
       },
-      body: newItem
+      body: newItem,
     };
   });
 
   // Actualizar un elemento
   router.put('/:collection/:id', async (req: Request): Promise<Response> => {
     const { collection, id } = req.params;
-    
+
     if (!req.body || typeof req.body !== 'object') {
       return {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: { error: 'Cuerpo de la solicitud inválido' }
+        body: { error: 'Cuerpo de la solicitud inválido' },
       };
     }
 
@@ -98,7 +98,7 @@ export function registerApiEndpoints(server: Server): void {
       return {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
-        body: { error: `No se encontró el elemento con ID ${id}` }
+        body: { error: `No se encontró el elemento con ID ${id}` },
       };
     }
 
@@ -107,19 +107,19 @@ export function registerApiEndpoints(server: Server): void {
     return {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: updatedItem
+      body: updatedItem,
     };
   });
 
   // Actualizar parcialmente un elemento
   router.patch('/:collection/:id', async (req: Request): Promise<Response> => {
     const { collection, id } = req.params;
-    
+
     if (!req.body || typeof req.body !== 'object') {
       return {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: { error: 'Cuerpo de la solicitud inválido' }
+        body: { error: 'Cuerpo de la solicitud inválido' },
       };
     }
 
@@ -130,7 +130,7 @@ export function registerApiEndpoints(server: Server): void {
       return {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
-        body: { error: `No se encontró el elemento con ID ${id}` }
+        body: { error: `No se encontró el elemento con ID ${id}` },
       };
     }
 
@@ -139,7 +139,7 @@ export function registerApiEndpoints(server: Server): void {
     return {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: updatedItem
+      body: updatedItem,
     };
   });
 
@@ -147,21 +147,21 @@ export function registerApiEndpoints(server: Server): void {
   router.delete('/:collection/:id', async (req: Request): Promise<Response> => {
     const { collection, id } = req.params;
     const parsedId = isNaN(+id) ? id : +id;
-    
+
     const success = db.remove(collection, parsedId);
 
     if (!success) {
       return {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
-        body: { error: `No se encontró el elemento con ID ${id}` }
+        body: { error: `No se encontró el elemento con ID ${id}` },
       };
     }
 
     return {
       status: 204,
       headers: { 'Content-Type': 'application/json' },
-      body: null
+      body: null,
     };
   });
 }
