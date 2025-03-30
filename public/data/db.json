@@ -1,0 +1,57 @@
+{
+    "usuarios": [
+      { "id": 1, "nombre": "Juan Pérez", "email": "juan@example.com", "rol": "admin" },
+      { "id": 2, "nombre": "Ana García", "email": "ana@example.com", "rol": "usuario" },
+      { "id": 3, "nombre": "Carlos Rodríguez", "email": "carlos@example.com", "rol": "usuario" },
+      { "id": 4, "nombre": "María López", "email": "maria@example.com", "rol": "editor" }
+    ],
+    "productos": [
+      { "id": 1, "nombre": "Laptop HP", "precio": 1200, "stock": 10, "categoria": "electrónica" },
+      { "id": 2, "nombre": "Smartphone Samsung", "precio": 800, "stock": 15, "categoria": "electrónica" },
+      { "id": 3, "nombre": "Tablet iPad", "precio": 350, "stock": 8, "categoria": "electrónica" },
+      { "id": 4, "nombre": "Monitor LG", "precio": 250, "stock": 12, "categoria": "electrónica" },
+      { "id": 5, "nombre": "Teclado mecánico", "precio": 120, "stock": 20, "categoria": "accesorios" },
+      { "id": 6, "nombre": "Mouse inalámbrico", "precio": 45, "stock": 30, "categoria": "accesorios" }
+    ],
+    "pedidos": [
+      { 
+        "id": 1, 
+        "usuarioId": 2, 
+        "fecha": "2023-09-15", 
+        "estado": "entregado",
+        "total": 1550,
+        "items": [
+          { "productoId": 1, "cantidad": 1, "precioUnitario": 1200 },
+          { "productoId": 3, "cantidad": 1, "precioUnitario": 350 }
+        ]
+      },
+      { 
+        "id": 2, 
+        "usuarioId": 3, 
+        "fecha": "2023-10-05", 
+        "estado": "enviado",
+        "total": 845,
+        "items": [
+          { "productoId": 2, "cantidad": 1, "precioUnitario": 800 },
+          { "productoId": 6, "cantidad": 1, "precioUnitario": 45 }
+        ]
+      },
+      { 
+        "id": 3, 
+        "usuarioId": 4, 
+        "fecha": "2023-10-10", 
+        "estado": "pendiente",
+        "total": 490,
+        "items": [
+          { "productoId": 4, "cantidad": 1, "precioUnitario": 250 },
+          { "productoId": 5, "cantidad": 2, "precioUnitario": 120 }
+        ]
+      }
+    ],
+    "categorias": [
+      { "id": 1, "nombre": "electrónica", "descripcion": "Productos electrónicos como computadoras, teléfonos, etc." },
+      { "id": 2, "nombre": "accesorios", "descripcion": "Accesorios para computadoras y dispositivos electrónicos" },
+      { "id": 3, "nombre": "hogar", "descripcion": "Productos para el hogar" },
+      { "id": 4, "nombre": "ropa", "descripcion": "Vestimenta y accesorios de moda" }
+    ]
+  }
