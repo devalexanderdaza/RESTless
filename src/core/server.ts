@@ -1,39 +1,64 @@
-import { Database } from './db';
+import { Database, StorageType } from './db';
 import { Router } from './router';
 import { HttpMethod, Response } from './types';
+
+export interface ServerConfig {
+  baseUrl?: string;
+  storageType?: StorageType;
+  storageKey?: string;
+}
 
 export class Server {
   private router: Router;
   private db: Database;
   private baseUrl: string;
 
-  constructor() {
+  constructor(config: ServerConfig = {}) {
+    const { baseUrl = '/api', storageType = 'localStorage', storageKey = 'browser-api-db' } = config;
+    
     this.router = new Router();
-    this.db = new Database();
-    this.baseUrl = '/api';
+    this.db = new Database(storageKey, storageType);
+    this.baseUrl = baseUrl.startsWith('/') ? baseUrl : `/${baseUrl}`;
   }
 
-  // Obtiene la instancia del router
+  /**
+   * Obtiene la instancia del router
+   */
   public getRouter(): Router {
     return this.router;
   }
 
-  // Obtiene la instancia de la base de datos
+  /**
+   * Obtiene la instancia de la base de datos
+   */
   public getDb(): Database {
     return this.db;
   }
 
-  // Establece la URL base para todas las rutas
+  /**
+   * Establece la URL base para todas las rutas
+   */
   public setBaseUrl(url: string): void {
     this.baseUrl = url.startsWith('/') ? url : `/${url}`;
   }
 
-  // Inicializa el servidor con datos
-  public async initialize(initialData: Record<string, any[]>): Promise<void> {
+  /**
+   * Cambia el tipo de almacenamiento
+   */
+  public async changeStorage(newType: StorageType): Promise<void> {
+    await this.db.changeStorage(newType);
+  }
+
+  /**
+   * Inicializa el servidor con datos
+   */
+  public async initialize(initialData: Record<string, any[]> = {}): Promise<void> {
     await this.db.initialize(initialData);
   }
 
-  // Procesa una solicitud al servidor
+  /**
+   * Procesa una solicitud al servidor
+   */
   public async handleRequest(
     method: HttpMethod,
     url: string,
@@ -45,14 +70,28 @@ export class Server {
       return {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
-        body: { error: 'Not Found' },
+        body: { error: 'Not Found' }
       };
     }
 
     // Eliminar la URL base del path
     const apiPath = url.substring(this.baseUrl.length);
-
+    
     // Procesar la solicitud a través del router
     return this.router.handleRequest(method, apiPath, headers, body);
+  }
+
+  /**
+   * Exporta todos los datos
+   */
+  public async exportData(): Promise<Record<string, any[]>> {
+    return this.db.exportData();
+  }
+
+  /**
+   * Importa datos y reemplaza los existentes
+   */
+  public async importData(data: Record<string, any[]>): Promise<void> {
+    await this.db.importData(data);
   }
 }

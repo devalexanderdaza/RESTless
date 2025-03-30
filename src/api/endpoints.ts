@@ -68,7 +68,7 @@ export function registerApiEndpoints(server: Server): void {
       };
     }
 
-    const newItem = db.add(collection, req.body);
+    const newItem = await db.add(collection, req.body);
     return {
       status: 201,
       headers: {

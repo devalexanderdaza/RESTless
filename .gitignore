@@ -25,3 +25,4 @@ dist-ssr
 
 # Mac
 package-lock.json
+restless-data.json
