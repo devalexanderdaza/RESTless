@@ -16,7 +16,7 @@ export function registerApiEndpoints(server: Server): void {
   });
 
   // Obtener todos los elementos de una colección
-  router.get('/:collection', async (req: Request) => {
+  router.get('/:collection', async (req: Request): Promise<Response> => {
     const { collection } = req.params;
     const data = db.getAll(collection);
 
@@ -37,7 +37,7 @@ export function registerApiEndpoints(server: Server): void {
   });
 
   // Obtener un elemento por ID
-  router.get('/:collection/:id', async (req: Request) => {
+  router.get('/:collection/:id', async (req: Request): Promise<Response> => {
     const { collection, id } = req.params;
     const item = db.getById(collection, isNaN(+id) ? id : +id);
 
@@ -57,9 +57,9 @@ export function registerApiEndpoints(server: Server): void {
   });
 
   // Crear un nuevo elemento
-  router.post('/:collection', async (req: Request) => {
+  router.post('/:collection', async (req: Request): Promise<Response> => {
     const { collection } = req.params;
-    
+
     if (!req.body || typeof req.body !== 'object') {
       return {
         status: 400,
@@ -69,7 +69,6 @@ export function registerApiEndpoints(server: Server): void {
     }
 
     const newItem = db.add(collection, req.body);
-
     return {
       status: 201,
       headers: { 
@@ -81,7 +80,7 @@ export function registerApiEndpoints(server: Server): void {
   });
 
   // Actualizar un elemento
-  router.put('/:collection/:id', async (req: Request) => {
+  router.put('/:collection/:id', async (req: Request): Promise<Response> => {
     const { collection, id } = req.params;
     
     if (!req.body || typeof req.body !== 'object') {
@@ -113,7 +112,7 @@ export function registerApiEndpoints(server: Server): void {
   });
 
   // Actualizar parcialmente un elemento
-  router.patch('/:collection/:id', async (req: Request) => {
+  router.patch('/:collection/:id', async (req: Request): Promise<Response> => {
     const { collection, id } = req.params;
     
     if (!req.body || typeof req.body !== 'object') {
@@ -145,7 +144,7 @@ export function registerApiEndpoints(server: Server): void {
   });
 
   // Eliminar un elemento
-  router.delete('/:collection/:id', async (req: Request) => {
+  router.delete('/:collection/:id', async (req: Request): Promise<Response> => {
     const { collection, id } = req.params;
     const parsedId = isNaN(+id) ? id : +id;
     

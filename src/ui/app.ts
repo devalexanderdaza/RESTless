@@ -5,8 +5,8 @@ import { ApiConsole, DataManager } from './components';
 export class App {
   private server: Server;
   private container: HTMLElement;
-  private apiConsole: ApiConsole;
-  private dataManager: DataManager;
+  private apiConsole!: ApiConsole;
+  private dataManager!: DataManager;
 
   constructor(server: Server, containerId: string = 'app') {
     this.server = server;

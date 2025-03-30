@@ -22,12 +22,12 @@ export class Component {
   }
   
   export class ApiConsole extends Component {
-    private requestForm: HTMLFormElement;
-    private methodSelect: HTMLSelectElement;
-    private urlInput: HTMLInputElement;
-    private bodyTextarea: HTMLTextAreaElement;
-    private sendButton: HTMLButtonElement;
-    private responseArea: HTMLElement;
+    private requestForm!: HTMLFormElement;
+    private methodSelect!: HTMLSelectElement;
+    private urlInput!: HTMLInputElement;
+    private bodyTextarea!: HTMLTextAreaElement;
+    private sendButton!: HTMLButtonElement;
+    private responseArea!: HTMLElement;
   
     private onSendRequest: (method: string, url: string, body: string) => Promise<void>;
   
@@ -163,10 +163,10 @@ export class Component {
   }
   
   export class DataManager extends Component {
-    private collections: HTMLSelectElement;
-    private dataTable: HTMLTableElement;
-    private importExportArea: HTMLElement;
-    private dataTextarea: HTMLTextAreaElement;
+    private collections!: HTMLSelectElement;
+    private dataTable!: HTMLTableElement;
+    private importExportArea!: HTMLElement;
+    private dataTextarea!: HTMLTextAreaElement;
   
     private onCollectionSelect: (collection: string) => Promise<void>;
     private onImportData: (jsonData: string) => Promise<void>;

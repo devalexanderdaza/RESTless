@@ -91,7 +91,7 @@ export class Router {
     body: any = null
   ): Promise<Response> {
     // Separar la ruta de los parámetros de consulta
-    const [path, queryString] = url.split('?');
+    const [path, _queryString] = url.split('?');
     const query = this.parseQueryParams(url);
     
     // Buscar una ruta coincidente

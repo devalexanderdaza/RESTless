@@ -1,6 +1,6 @@
 import { Database } from './db';
 import { Router } from './router';
-import { HttpMethod, Request, Response } from './types';
+import { HttpMethod, Response } from './types';
 
 export class Server {
   private router: Router;
