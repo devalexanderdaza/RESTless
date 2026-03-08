@@ -81,6 +81,12 @@ describe('QueryParser', () => {
       expect(cond.operator).toBe('>=');
     });
 
+    it('ignores params with unknown operator after double underscore', () => {
+      const options = QueryParser.parseQueryParams({ created_at__badop: '2023-01-01' });
+      // Unknown operator → param is skipped entirely, no condition added
+      expect(options.filter).toBeUndefined();
+    });
+
     it('ignores reserved query params in filter', () => {
       const options = QueryParser.parseQueryParams({ _sort: 'name', _order: 'asc', _page: '1' });
       expect(options.filter).toBeUndefined();

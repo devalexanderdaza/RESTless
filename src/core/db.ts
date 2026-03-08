@@ -37,18 +37,22 @@ export class Database {
    * @param newType Nuevo tipo de almacenamiento
    */
   public async changeStorage(newType: StorageType): Promise<void> {
-    // Guarda los datos actuales en memoria
-    const currentData = this.data;
+    const previousAdapter = this.adapter;
 
-    // Elimina los datos del adaptador antiguo para evitar datos obsoletos al volver a cambiar
-    await this.adapter.remove(this.storageKey);
-
-    // Crea el nuevo adaptador y guarda los datos en él
+    // Guarda los datos en el nuevo adaptador antes de cambiar nada
     const newAdapter = this.createAdapter(newType);
-    await newAdapter.save(this.storageKey, currentData);
+    await newAdapter.save(this.storageKey, this.data);
 
-    // Actualiza el adaptador
+    // Actualiza el adaptador activo
     this.adapter = newAdapter;
+
+    // Limpia el adaptador anterior de forma no-bloqueante para evitar pérdida de datos
+    // si el guardado en el nuevo adaptador hubiera fallado antes de llegar aquí
+    try {
+      await previousAdapter.remove(this.storageKey);
+    } catch (error) {
+      console.warn('No se pudo limpiar el adaptador anterior:', error);
+    }
   }
 
   /**

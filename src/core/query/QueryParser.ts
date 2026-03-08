@@ -53,12 +53,13 @@ export class QueryParser {
         const operator = key.substring(lastDblIdx + 2);
 
         if (field && operator) {
-          // Parsear operador
           const condition = QueryParser.createFilterCondition(field, operator, value);
           if (condition) {
             filterGroup.conditions.push(condition);
-            return;
           }
+          // Si el operador no es reconocido, ignorar el parámetro en lugar de añadir
+          // una condición con el nombre de clave completo (p. ej. "field__badop")
+          return;
         }
       }
       // Condición de igualdad simple (campos con guión bajo también se tratan como igualdad)
