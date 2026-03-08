@@ -1,7 +1,8 @@
 import { Server } from './core/server';
 import { registerApiEndpoints } from './api/endpoints';
 import { errorHandlerMiddleware, loggerMiddleware, delayMiddleware } from './api/middlewares';
-import { App } from './ui/app';
+import { App } from './';
+import { schemas } from './schemas';
 
 // Datos iniciales de ejemplo
 const initialData = {
@@ -31,8 +32,12 @@ const initialData = {
 // Función principal para inicializar la aplicación
 async function init() {
   try {
-    // Crear e inicializar el servidor
-    const server = new Server();
+    // Crear e inicializar el servidor con configuración personalizada
+    const server = new Server({
+      baseUrl: '/api',
+      storageType: 'indexedDB', // Por defecto usar localStorage
+      storageKey: 'restless-db'
+    });
     
     // Registrar middlewares
     const router = server.getRouter();
@@ -42,6 +47,9 @@ async function init() {
     
     // Registrar endpoints
     registerApiEndpoints(server);
+
+    // Registrar esquemas
+    schemas.forEach(schema => server.registerSchema(schema));
     
     // Inicializar con datos
     await server.initialize(initialData);
@@ -49,9 +57,19 @@ async function init() {
     // Inicializar la UI
     new App(server);
     
-    console.log('Aplicación inicializada correctamente');
+    console.log('RESTless inicializado correctamente');
+    
+    // Eliminar mensaje de carga
+    const loadingElement = document.querySelector('.loading');
+    if (loadingElement && loadingElement.parentNode) {
+      loadingElement.parentNode.removeChild(loadingElement);
+    }
   } catch (error) {
     console.error('Error al inicializar la aplicación:', error);
+    const loadingElement = document.querySelector('.loading');
+    if (loadingElement) {
+      loadingElement.textContent = 'Error al cargar la aplicación. Consulta la consola para más detalles.';
+    }
   }
 }
 

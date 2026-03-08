@@ -1,6 +1,7 @@
 import { Server } from '../core/server';
 import { HttpMethod } from '../core/types';
-import { ApiConsole, DataManager } from './components';
+import { ApiConsole } from './components/ApiConsole';
+import { DataManager } from './components/DataManager';
 
 export class App {
   private server: Server;
@@ -25,7 +26,8 @@ export class App {
     this.dataManager = new DataManager(
       this.handleCollectionSelect.bind(this),
       this.handleImportData.bind(this),
-      this.handleExportData.bind(this)
+      this.handleExportData.bind(this),
+      this.handleChangeStorage.bind(this)
     );
     this.dataManager.appendTo(document.getElementById('data-section')!);
     
@@ -39,8 +41,13 @@ export class App {
     // Crear encabezado
     const header = document.createElement('header');
     const title = document.createElement('h1');
-    title.innerText = 'API del Navegador';
+    title.innerText = 'RESTless API';
+    
+    const subtitle = document.createElement('p');
+    subtitle.innerText = 'API REST completamente en el navegador';
+    
     header.appendChild(title);
+    header.appendChild(subtitle);
     
     // Crear contenedor principal
     const main = document.createElement('main');
@@ -133,7 +140,7 @@ export class App {
   private async handleImportData(jsonData: string): Promise<void> {
     try {
       const data = JSON.parse(jsonData);
-      await this.server.initialize(data);
+      await this.server.importData(data);
       await this.loadCollections();
     } catch (error) {
       console.error('Error al importar datos:', error);
@@ -141,17 +148,18 @@ export class App {
     }
   }
 
-  private async handleExportData(): Promise<string> {
-    const db = this.server.getDb();
-    const collections = db.getCollections();
-    
-    const exportData: Record<string, any[]> = {};
-    
-    collections.forEach(collection => {
-      exportData[collection] = db.getAll(collection);
-    });
-    
-    return JSON.stringify(exportData, null, 2);
+  private async handleExportData(): Promise<Record<string, any[]>> {
+    return await this.server.exportData();
+  }
+
+  private async handleChangeStorage(useIndexedDB: boolean): Promise<void> {
+    try {
+      const storageType = useIndexedDB ? 'indexedDB' : 'localStorage';
+      await this.server.changeStorage(storageType);
+    } catch (error) {
+      console.error('Error al cambiar el almacenamiento:', error);
+      throw error;
+    }
   }
 
   private async loadCollections(): Promise<void> {

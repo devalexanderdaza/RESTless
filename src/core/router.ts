@@ -6,7 +6,7 @@ export class Router {
   private notFoundHandler: RouteHandler = async () => ({
     status: 404,
     headers: { 'Content-Type': 'application/json' },
-    body: { error: 'Not Found' }
+    body: { error: 'Not Found' },
   });
 
   // Añade un middleware a la cadena
@@ -48,23 +48,21 @@ export class Router {
   // Comprueba si una ruta coincide con una plantilla
   private matchRoute(routePath: string, requestPath: string): null | Record<string, string> {
     // Convertir la ruta en un patrón regex
-    const pattern = routePath
-      .replace(/\/:[^\/]+/g, '/([^/]+)')
-      .replace(/\//g, '\\/');
-    
+    const pattern = routePath.replace(/\/:[^\/]+/g, '/([^/]+)').replace(/\//g, '\\/');
+
     const regex = new RegExp(`^${pattern}$`);
     const match = requestPath.match(regex);
-    
+
     if (!match) return null;
-    
+
     // Extraer parámetros de la URL
     const params: Record<string, string> = {};
-    const paramNames = [...routePath.matchAll(/\/:([^\/]+)/g)].map(m => m[1]);
-    
+    const paramNames = [...routePath.matchAll(/\/:([^\/]+)/g)].map((m) => m[1]);
+
     paramNames.forEach((name, index) => {
       params[name] = match[index + 1];
     });
-    
+
     return params;
   }
 
@@ -72,35 +70,35 @@ export class Router {
   private parseQueryParams(url: string): Record<string, string> {
     const query: Record<string, string> = {};
     const queryString = url.split('?')[1];
-    
+
     if (!queryString) return query;
-    
-    queryString.split('&').forEach(pair => {
+
+    queryString.split('&').forEach((pair) => {
       const [key, value] = pair.split('=');
       if (key) query[key] = decodeURIComponent(value || '');
     });
-    
+
     return query;
   }
 
   // Construye y procesa una solicitud
   public async handleRequest(
-    method: HttpMethod, 
-    url: string, 
-    headers: Record<string, string> = {}, 
+    method: HttpMethod,
+    url: string,
+    headers: Record<string, string> = {},
     body: any = null
   ): Promise<Response> {
     // Separar la ruta de los parámetros de consulta
     const [path, _queryString] = url.split('?');
     const query = this.parseQueryParams(url);
-    
+
     // Buscar una ruta coincidente
     let matchedRoute: Route | null = null;
     let params: Record<string, string> = {};
-    
+
     for (const route of this.routes) {
       if (route.method !== method) continue;
-      
+
       const matchResult = this.matchRoute(route.path, path);
       if (matchResult) {
         matchedRoute = route;
@@ -108,7 +106,7 @@ export class Router {
         break;
       }
     }
-    
+
     if (!matchedRoute) {
       return this.notFoundHandler({
         method,
@@ -116,10 +114,10 @@ export class Router {
         params: {},
         query,
         headers,
-        body
+        body,
       });
     }
-    
+
     // Construir la solicitud
     const request: Request = {
       method,
@@ -127,19 +125,19 @@ export class Router {
       params,
       query,
       headers,
-      body
+      body,
     };
-    
+
     // Aplicar middlewares
     let handler: RouteHandler = matchedRoute.handler;
-    
+
     // Aplicar middlewares en orden inverso
     for (let i = this.middlewares.length - 1; i >= 0; i--) {
       const middleware = this.middlewares[i];
       const nextHandler = handler;
       handler = async (req: Request) => middleware(req, nextHandler);
     }
-    
+
     // Ejecutar la cadena de middlewares y el manejador
     return handler(request);
   }

@@ -3,13 +3,13 @@ import { Middleware } from '../core/types';
 // Middleware para registro de solicitudes
 export const loggerMiddleware: Middleware = async (req, next) => {
   console.log(`${new Date().toISOString()} | ${req.method} ${req.path}`);
-  
+
   const start = Date.now();
   const response = await next(req);
   const duration = Date.now() - start;
-  
+
   console.log(`${new Date().toISOString()} | ${response.status} | ${duration}ms`);
-  
+
   return response;
 };
 
@@ -22,10 +22,10 @@ export const errorHandlerMiddleware: Middleware = async (req, next) => {
     return {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: { 
+      body: {
         error: 'Error interno del servidor',
-        message: error instanceof Error ? error.message : 'Error desconocido' 
-      }
+        message: error instanceof Error ? error.message : 'Error desconocido',
+      },
     };
   }
 };
@@ -33,6 +33,6 @@ export const errorHandlerMiddleware: Middleware = async (req, next) => {
 // Middleware para simular latencia de red
 export const delayMiddleware: Middleware = async (req, next) => {
   const delay = Math.floor(Math.random() * 200) + 100; // 100-300ms
-  await new Promise(resolve => setTimeout(resolve, delay));
+  await new Promise((resolve) => setTimeout(resolve, delay));
   return next(req);
 };
