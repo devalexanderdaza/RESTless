@@ -37,15 +37,16 @@ export class Database {
    * @param newType Nuevo tipo de almacenamiento
    */
   public async changeStorage(newType: StorageType): Promise<void> {
-    // Guarda los datos actuales
+    // Guarda los datos actuales en memoria
     const currentData = this.data;
-    
-    // Crea el nuevo adaptador
+
+    // Elimina los datos del adaptador antiguo para evitar datos obsoletos al volver a cambiar
+    await this.adapter.remove(this.storageKey);
+
+    // Crea el nuevo adaptador y guarda los datos en él
     const newAdapter = this.createAdapter(newType);
-    
-    // Guarda los datos con el nuevo adaptador
     await newAdapter.save(this.storageKey, currentData);
-    
+
     // Actualiza el adaptador
     this.adapter = newAdapter;
   }

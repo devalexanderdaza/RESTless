@@ -71,9 +71,9 @@ export class ApiConsole extends Component {
           <li><code>_sort=field1,field2&_order=asc,desc</code> - Ordenamiento</li>
           <li><code>_q=texto</code> - Búsqueda de texto</li>
           <li><code>_fields=field1,field2</code> - Campos para búsqueda</li>
-          <li><code>field_gt=100</code> - Mayor que (también: _lt, _gte, _lte, _ne)</li>
-          <li><code>field_like=valor</code> - Contiene valor</li>
-          <li><code>field_in=val1,val2</code> - Dentro de valores</li>
+          <li><code>field__gt=100</code> - Mayor que (también: __lt, __gte, __lte, __ne)</li>
+          <li><code>field__like=valor</code> - Contiene valor</li>
+          <li><code>field__in=val1,val2</code> - Dentro de valores</li>
         </ul>
       </details>
     `;
@@ -141,7 +141,7 @@ export class ApiConsole extends Component {
     filteringBtn.addEventListener('click', () => {
       // Ejemplo de URL con filtrado
       this.methodSelect.value = 'GET';
-      this.urlInput.value = '/api/productos?precio_gt=500&stock_lte=15';
+      this.urlInput.value = '/api/productos?precio__gt=500&stock__lte=15';
       this.bodyTextarea.value = '';
     });
     

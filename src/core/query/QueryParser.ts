@@ -46,25 +46,27 @@ export class QueryParser {
 
     // Procesar cada parámetro de filtro
     filterParams.forEach(([key, value]) => {
-      // Comprobar si es una condición especial
-      if (key.includes('_')) {
-        const [field, operator] = key.split('_');
-        
+      // Comprobar si usa el delimitador de doble guión bajo para operadores (ej: age__gt, created_at__gte)
+      if (key.includes('__')) {
+        const lastDblIdx = key.lastIndexOf('__');
+        const field = key.substring(0, lastDblIdx);
+        const operator = key.substring(lastDblIdx + 2);
+
         if (field && operator) {
           // Parsear operador
           const condition = QueryParser.createFilterCondition(field, operator, value);
           if (condition) {
             filterGroup.conditions.push(condition);
+            return;
           }
         }
-      } else {
-        // Condición de igualdad simple
-        filterGroup.conditions.push({
-          field: key,
-          operator: '=',
-          value
-        });
       }
+      // Condición de igualdad simple (campos con guión bajo también se tratan como igualdad)
+      filterGroup.conditions.push({
+        field: key,
+        operator: '=',
+        value
+      });
     });
 
     return filterGroup.conditions.length > 0 ? filterGroup : undefined;
