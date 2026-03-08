@@ -1,7 +1,7 @@
 {
   "name": "restless",
   "description": "RESTless is a complete REST API that works 100% in the browser. Simulated REST API with data persistence that works entirely in the browser. A replacement for json-server without Node.js dependencies or external servers.",
-  "version": "0.0.0",
+  "version": "1.5.0",
   "private": false,
   "license": "MIT",
   "type": "module",
@@ -46,7 +46,9 @@
     "globals": "^16.0.0",
     "prettier": "^3.5.3",
     "typescript": "~5.7.2",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "vitest": "^2.1.9",
+    "@vitest/coverage-v8": "^2.1.9"
   },
   "engines": {
     "node": ">=18.0.0",

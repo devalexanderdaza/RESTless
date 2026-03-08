@@ -312,8 +312,8 @@ export function registerApiEndpoints(server: Server): void {
         }
       }
       
-      // Usar datos transformados - solo actualizar los campos enviados
-      const updatedItem = await db.update(collection, parsedId, req.body);
+      // Usar datos transformados para persistir los cambios con transformaciones aplicadas
+      const updatedItem = await db.update(collection, parsedId, transformedData);
       
       return {
         status: 200,
