@@ -21,7 +21,7 @@ describe('QueryParser', () => {
     });
 
     it('parses operator-suffixed filters', () => {
-      const options = QueryParser.parseQueryParams({ age_gt: '25' });
+      const options = QueryParser.parseQueryParams({ age__gt: '25' });
       expect(options.filter).toBeDefined();
       expect(options.filter).toMatchObject({
         operator: 'and',
@@ -30,14 +30,14 @@ describe('QueryParser', () => {
     });
 
     it('parses ne operator', () => {
-      const options = QueryParser.parseQueryParams({ role_ne: 'user' });
+      const options = QueryParser.parseQueryParams({ role__ne: 'user' });
       expect(options.filter).toMatchObject({
         conditions: [{ field: 'role', operator: '!=' }],
       });
     });
 
     it('parses gte and lte operators', () => {
-      const options = QueryParser.parseQueryParams({ age_gte: '18', age_lte: '60' });
+      const options = QueryParser.parseQueryParams({ age__gte: '18', age__lte: '60' });
       const conditions = (options.filter as any).conditions;
       expect(conditions).toHaveLength(2);
       const ops = conditions.map((c: any) => c.operator);
@@ -46,24 +46,45 @@ describe('QueryParser', () => {
     });
 
     it('parses like operator', () => {
-      const options = QueryParser.parseQueryParams({ name_like: 'ali' });
+      const options = QueryParser.parseQueryParams({ name__like: 'ali' });
       expect(options.filter).toMatchObject({
         conditions: [{ field: 'name', operator: 'like', value: 'ali' }],
       });
     });
 
     it('parses in operator as array', () => {
-      const options = QueryParser.parseQueryParams({ role_in: 'admin,editor' });
+      const options = QueryParser.parseQueryParams({ role__in: 'admin,editor' });
       expect(options.filter).toMatchObject({
         conditions: [{ field: 'role', operator: 'in', value: ['admin', 'editor'] }],
       });
     });
 
     it('parses nin operator as array', () => {
-      const options = QueryParser.parseQueryParams({ role_nin: 'admin,editor' });
+      const options = QueryParser.parseQueryParams({ role__nin: 'admin,editor' });
       expect(options.filter).toMatchObject({
         conditions: [{ field: 'role', operator: 'nin', value: ['admin', 'editor'] }],
       });
+    });
+
+    it('treats underscore-containing field names as equality filters', () => {
+      const options = QueryParser.parseQueryParams({ created_at: '2023-01-01' });
+      expect(options.filter).toMatchObject({
+        conditions: [{ field: 'created_at', operator: '=', value: '2023-01-01' }],
+      });
+    });
+
+    it('parses operator on underscore-containing field names', () => {
+      const options = QueryParser.parseQueryParams({ created_at__gte: '2023-01-01' });
+      // created_at__gte: field is 'created_at', operator is '>='
+      const cond = (options.filter as any).conditions[0];
+      expect(cond.field).toBe('created_at');
+      expect(cond.operator).toBe('>=');
+    });
+
+    it('ignores params with unknown operator after double underscore', () => {
+      const options = QueryParser.parseQueryParams({ created_at__badop: '2023-01-01' });
+      // Unknown operator → param is skipped entirely, no condition added
+      expect(options.filter).toBeUndefined();
     });
 
     it('ignores reserved query params in filter', () => {
