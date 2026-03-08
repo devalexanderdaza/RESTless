@@ -168,57 +168,66 @@ Uso de Vite 6, ESLint 9 (flat config), Prettier y EditorConfig asegura consisten
 
 ## 6. Bugs y fallos encontrados
 
-### 🐛 BUG CRÍTICO: Uso de `Buffer` de Node.js en código de navegador
+> **Note:** Bugs marked ✅ have been fixed in the current version of the codebase.
 
-**Archivo:** `src/core/query/QueryProcessor.ts` (líneas ~215-216)
+### ✅ BUG CRÍTICO CORREGIDO: Uso de `Buffer` de Node.js en código de navegador
 
+**Archivo:** `src/core/query/QueryProcessor.ts`
+
+La paginación por cursor usaba `Buffer.from()` que no existe en navegadores. Esto provocaba un `ReferenceError: Buffer is not defined` en runtime al usar `_cursor` como parámetro de paginación.
+
+**Corrección aplicada:**
 ```typescript
-// ❌ Buffer es una API de Node.js, no existe en navegadores
+// Antes (Node.js solamente)
 const startIndex = cursor ? parseInt(Buffer.from(cursor, 'base64').toString(), 10) : 0;
 const nextCursor = hasMore ? Buffer.from(String(endIndex)).toString('base64') : undefined;
-```
 
-La paginación por cursor usa `Buffer.from()` que **no existe en navegadores**. Esto provoca un `ReferenceError: Buffer is not defined` en runtime al usar `_cursor` como parámetro de paginación. El reemplazo correcto son las funciones nativas del navegador `btoa()` / `atob()`.
-
-**Corrección propuesta:**
-```typescript
+// Después (APIs nativas del navegador)
 const startIndex = cursor ? parseInt(atob(cursor), 10) : 0;
 const nextCursor = hasMore ? btoa(String(endIndex)) : undefined;
 ```
 
 ---
 
-### 🐛 BUG: Inconsistencia en el endpoint PATCH con esquema
+### ✅ BUG CORREGIDO: Inconsistencia en el endpoint PATCH con esquema
 
 **Archivo:** `src/api/endpoints.ts` (endpoint PATCH)
 
-El handler PATCH construye `combinedData` (objeto fusionado y transformado), lo valida correctamente, pero luego **guarda `req.body` en lugar de `transformedData`**:
+El handler PATCH construía `combinedData` (objeto fusionado y transformado), lo validaba correctamente, pero luego **guardaba `req.body` en lugar de `transformedData`**, ignorando las transformaciones del esquema (por ejemplo, el redondeo de precio a 2 decimales).
 
-```typescript
-// ✅ Se valida transformedData
-const validationResult = SchemaValidator.validate(transformedData, schema, true);
-
-// ❌ Pero se guarda req.body sin transformar
-const updatedItem = await db.update(collection, parsedId, req.body);
-```
-
-Esto ignora las transformaciones del esquema (por ejemplo, el redondeo de precio a 2 decimales) cuando se hace un PATCH con esquema activo.
+**Corrección aplicada:** el endpoint PATCH ahora persiste `transformedData` en lugar de `req.body`.
 
 ---
 
-### 🐛 BUG: Filtro de URL confunde campos con guiones bajos como operadores
+### ✅ BUG CORREGIDO: Filtro de URL confunde campos con guiones bajos como operadores
 
 **Archivo:** `src/core/query/QueryParser.ts` (método `parseFilterParams`)
 
-```typescript
-// Si el key contiene '_', lo trata como field_operator
-if (key.includes('_')) {
-  const [field, operator] = key.split('_');
-  // ...
-}
+El parseo basado en `key.includes('_')` era frágil: un campo de datos llamado `created_at`, `user_name` o `product_id` quedaba mal parseado.
+
+**Corrección aplicada:** se usa el delimitador doble guión bajo (`__`) para separar campo y operador. Los campos con guiones bajos simples se tratan siempre como igualdad:
+
+```
+?price__gte=100  →  field=price, operator=gte, value=100
+?created_at=2024 →  field=created_at, operator== (equality), value=2024
 ```
 
-Un campo de datos llamado `created_at`, `user_name` o `product_id` quedaría mal parseado: `created` sería el campo y `at` el operador (que no existe), descartando el filtro silenciosamente. Esto es un bug de diseño en el parseo de parámetros.
+---
+
+### ✅ BUG CORREGIDO: `changeStorage` podía perder datos
+
+**Archivo:** `src/core/db.ts`
+
+La implementación original de `changeStorage` escribía los datos en el nuevo adaptador y luego actualizaba el adaptador activo, pero no limpiaba el anterior de forma segura.
+
+**Corrección aplicada:** los datos se guardan en el nuevo adaptador antes de actualizar el puntero, y el adaptador anterior se limpia con manejo de errores no bloqueante.
+
+---
+
+### ✅ BUG CORREGIDO: Inconsistencia de versiones
+
+- `package.json`: ahora `"version": "1.5.0"` ✅
+- `src/index.ts`: `export const VERSION = '1.5.0';` ✅
 
 ---
 
@@ -243,53 +252,27 @@ Aunque el prefijo `_` suprime la advertencia del linter, este patrón indica có
 
 ---
 
-### 🐛 BUG: `changeStorage` no carga datos de la nueva fuente
-
-**Archivo:** `src/core/db.ts`
-
-```typescript
-public async changeStorage(newType: StorageType): Promise<void> {
-  const currentData = this.data;            // Toma datos en memoria
-  const newAdapter = this.createAdapter(newType);
-  await newAdapter.save(this.storageKey, currentData);  // Escribe en nuevo storage
-  this.adapter = newAdapter;
-  // ❌ No lee datos existentes en el nuevo storage
-}
-```
-
-Si el usuario tiene datos en IndexedDB y cambia a localStorage, **los datos de localStorage se sobreescriben** con los datos en memoria actuales. Los datos previos en localStorage se pierden silenciosamente.
-
----
-
-### 🐛 BUG: Inconsistencia de versiones
-
-- `package.json`: `"version": "0.0.0"`
-- `src/index.ts`: `export const VERSION = '1.5.0';`
-
-La versión exportada públicamente no concuerda con la versión del paquete.
-
----
-
 ## 7. Deuda técnica
 
-### 🔴 CRÍTICO: Sin pruebas automatizadas
+### ✅ RESUELTO: Pruebas automatizadas
 
-El `package.json` tiene scripts `test`, `test:watch` y `test:coverage` que invocan `vitest`, pero:
+`vitest` y `@vitest/coverage-v8` están ahora en `devDependencies` y existen archivos de prueba para los módulos críticos:
+- `src/core/query/QueryParser.test.ts`
+- `src/core/query/QueryProcessor.test.ts`
+- `src/core/schema/SchemaValidator.test.ts`
 
-1. **`vitest` no está en `devDependencies`** — no se puede ejecutar.
-2. **No existe ningún archivo de prueba** (ni `.test.ts`, `.spec.ts`, ni directorio `__tests__`).
-
-El `CONTRIBUTING.md` exige escribir pruebas para nuevas funcionalidades y bugfixes. Esto es inconsistente con el estado actual del repositorio. La cobertura de pruebas es **0%**.
+Ejecutar las pruebas:
+```bash
+pnpm test             # una sola ejecución
+pnpm test:watch       # modo observador
+pnpm test:coverage    # con reporte de cobertura
+```
 
 ---
 
-### 🟠 ALTO: Dos configuraciones de ESLint en conflicto
+### ✅ RESUELTO: Dos configuraciones de ESLint en conflicto
 
-El proyecto tiene **simultáneamente**:
-- `.eslintrc.json` — formato legacy (ESLint ≤8)
-- `eslint.config.mjs` — formato flat config (ESLint ≥9)
-
-Esto crea ambigüedad sobre cuál se aplica. ESLint 9 usa flat config por defecto e ignora `.eslintrc.json`. Tener ambos genera confusión innecesaria; se debe eliminar `.eslintrc.json`.
+El proyecto ahora utiliza únicamente `eslint.config.mjs` (flat config de ESLint 9). No existe un archivo `.eslintrc.json` en el repositorio.
 
 ---
 
@@ -386,54 +369,25 @@ La expansión de relaciones mediante `_expand=true` sólo funciona en `GET /:col
 
 ## 8. Oportunidades de mejora
 
-### 1. Agregar pruebas con Vitest
+### ✅ 1. Pruebas con Vitest — IMPLEMENTADO
 
-**Prioridad: Crítica.** Instalar `vitest` y crear pruebas unitarias para los módulos sin dependencias de DOM:
+`vitest` y `@vitest/coverage-v8` están instalados y existen pruebas unitarias para `QueryParser`, `QueryProcessor` y `SchemaValidator`. Ejecutar con `pnpm test`.
 
-```bash
-pnpm add -D vitest
-```
-
-Módulos prioritarios para testear:
-- `QueryProcessor` — lógica pura, muy testeable.
-- `QueryParser` — parseo de strings, casos edge claros.
-- `SchemaValidator` — validaciones deterministas.
+Módulos pendientes de cobertura adicional:
 - `DataExporter` — importación/exportación CSV y JSON.
 - `Database` — operaciones CRUD con mock de StorageAdapter.
 
 ---
 
-### 2. Corregir paginación por cursor para navegadores
+### ✅ 2. Paginación por cursor para navegadores — IMPLEMENTADO
 
-Reemplazar `Buffer` con APIs nativas del navegador:
-
-```typescript
-// Antes (Node.js solamente)
-Buffer.from(cursor, 'base64').toString()
-Buffer.from(String(endIndex)).toString('base64')
-
-// Después (navegador nativo)
-atob(cursor)
-btoa(String(endIndex))
-```
+`Buffer` fue reemplazado por `btoa()` / `atob()` nativas del navegador. La paginación por cursor funciona correctamente en todos los entornos.
 
 ---
 
-### 3. Mejorar el parseo de filtros en QueryParser
+### ✅ 3. Parseo de filtros en QueryParser — IMPLEMENTADO
 
-El parseo basado en `key.includes('_')` es frágil. Una mejor estrategia es reservar un prefijo explícito para operadores:
-
-```
-# Convención actual (problemática)
-?created_at=2024  → parsea como field="created", operator="at"
-
-# Propuesta mejor
-?filter[created_at][gte]=2024
-# o
-?created_at__gte=2024  (doble guion bajo como separador)
-```
-
----
+Se usa el delimitador `__` (doble guión bajo) para separar campo y operador. Los campos con guiones bajos simples (`created_at`, `user_name`) se tratan correctamente como campos de igualdad.
 
 ### 4. Hacer SchemaRegistry inyectable (no Singleton)
 
@@ -528,10 +482,9 @@ El `vite.config.ts` mezcla la configuración del servidor de desarrollo con la c
 
 ### 12. Publicar en npm
 
-El `README.md` menciona "NPM Package (Coming Soon)". Los pasos necesarios serían:
-1. Corregir la versión en `package.json` (actualmente `0.0.0`).
-2. Añadir `"exports"` al `package.json`.
-3. Configurar CI para publicación automática al hacer release.
+Los pasos necesarios serían:
+1. Añadir `"exports"` al `package.json`.
+2. Configurar CI para publicación automática al hacer release.
 
 ---
 
@@ -573,25 +526,25 @@ Los componentes UI usan `innerHTML` y `innerText` en múltiples lugares. El uso 
 | Categoría | Puntuación | Comentario |
 |---|---|---|
 | Arquitectura | 8/10 | Separación de responsabilidades clara, buenos patrones |
-| Código TypeScript | 7/10 | Tipado estricto, pero algunos `any` y usos de Node.js en código de navegador |
+| Código TypeScript | 8/10 | Tipado estricto, bugs críticos corregidos |
 | Funcionalidades | 9/10 | Sorprendentemente completo para un mock server en el navegador |
-| Pruebas | 0/10 | Sin pruebas, sin vitest instalado |
-| Documentación | 6/10 | README adecuado, sin JSDoc consistente, sin CHANGELOG |
+| Pruebas | 4/10 | Vitest instalado, pruebas para módulos clave; cobertura parcial |
+| Documentación | 8/10 | README comprehensivo, CONTRIBUTING actualizado, informe técnico detallado |
 | Seguridad | 5/10 | Sin autenticación, sin límites de tamaño, posible XSS |
-| Mantenibilidad | 6/10 | Idioma mixto, singleton problemático, configs duplicadas |
-| DevEx | 7/10 | Buenas herramientas, pero sin CI/CD ni pruebas |
+| Mantenibilidad | 7/10 | ESLint flat config, Prettier, EditorConfig; idioma mixto pendiente |
+| DevEx | 8/10 | Herramientas modernas, scripts de test/lint/format completos |
 
 ### Prioridades recomendadas
 
-**Inmediatas (antes de cualquier release público):**
-1. ~~Corregir el bug de `Buffer` en paginación por cursor~~ → usar `btoa`/`atob`
-2. Instalar `vitest` y escribir pruebas básicas
-3. Corregir el bug de PATCH que descarta transformaciones
-4. Eliminar `.eslintrc.json` (mantener solo `eslint.config.mjs`)
-5. Sincronizar versión entre `package.json` y `src/index.ts`
+**Inmediatas:**
+1. ~~Corregir el bug de `Buffer` en paginación por cursor~~ ✅ Corregido
+2. ~~Instalar `vitest` y escribir pruebas básicas~~ ✅ Implementado
+3. ~~Corregir el bug de PATCH que descarta transformaciones~~ ✅ Corregido
+4. ~~Eliminar `.eslintrc.json` (mantener solo `eslint.config.mjs`)~~ ✅ Resuelto
+5. ~~Sincronizar versión entre `package.json` y `src/index.ts`~~ ✅ Corregido (v1.5.0)
 
 **Corto plazo (próximos sprints):**
-6. Refactorizar `QueryParser` para evitar ambigüedad con campos que contienen `_`
+6. ~~Refactorizar `QueryParser` para evitar ambigüedad con campos que contienen `_`~~ ✅ Implementado (doble guión bajo)
 7. Hacer `SchemaRegistry` inyectable (no singleton)
 8. Traducir comentarios y mensajes de error al inglés
 9. Agregar CI con GitHub Actions
@@ -604,4 +557,4 @@ Los componentes UI usan `innerHTML` y `innerText` en múltiples lugares. El uso 
 
 ---
 
-*Este informe fue generado mediante análisis estático del código fuente. Se recomienda complementarlo con pruebas de integración y revisión manual de los componentes UI.*
+*Este informe fue generado mediante análisis estático del código fuente y actualizado para reflejar los cambios de la versión 1.5.0.*

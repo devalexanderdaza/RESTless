@@ -42,11 +42,13 @@ Feature suggestions are welcome! To suggest a feature:
 
 #### Setting Up the Development Environment
 
+Requirements: Node.js ≥ 18.0.0 and pnpm ≥ 9.0.0.
+
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/YOUR-USERNAME/RESTless.git`
 3. Navigate to the project directory: `cd RESTless`
-4. Install dependencies: `npm install`
-5. Start the development server: `npm run dev`
+4. Install dependencies: `pnpm install`
+5. Start the development server: `pnpm dev`
 
 #### Branching Strategy
 
@@ -61,11 +63,12 @@ Feature suggestions are welcome! To suggest a feature:
 
 1. Create a new branch from `development`
 2. Make your changes
-3. Run tests: `npm test`
-4. Update documentation if necessary
-5. Submit a pull request to the `development` branch
-6. Describe your changes in detail
-7. Reference any related issues
+3. Run tests: `pnpm test`
+4. Run the linter: `pnpm lint`
+5. Update documentation if necessary
+6. Submit a pull request to the `development` branch
+7. Describe your changes in detail
+8. Reference any related issues
 
 #### Commit Message Guidelines
 
@@ -84,7 +87,7 @@ Example: `feat: add user authentication component`
 
 ### Coding Standards
 
-- Follow the TypeScript coding style outlined in the `.eslintrc` configuration
+- Follow the TypeScript coding style outlined in `eslint.config.mjs`
 - Write comprehensive comments for complex functionality
 - Prioritize readability and maintainability
 - Write self-documenting code when possible
@@ -100,7 +103,12 @@ All new features and bug fixes should include appropriate tests:
 
 To run tests:
 ```bash
-npm test
+pnpm test
+```
+
+To run tests with coverage:
+```bash
+pnpm test:coverage
 ```
 
 ### Documentation
