@@ -232,15 +232,15 @@ import {
     ): { data: T[]; pagination: { nextCursor?: string; hasMore: boolean } } {
       const { cursor, limit } = pagination;
       
-      // Decodificar cursor (formato: índice)
-      const startIndex = cursor ? parseInt(Buffer.from(cursor, 'base64').toString(), 10) : 0;
+      // Decodificar cursor (formato: índice codificado en base64)
+      const startIndex = cursor ? parseInt(atob(cursor), 10) : 0;
       const endIndex = startIndex + limit;
       
       const paginatedData = data.slice(startIndex, endIndex);
       const hasMore = endIndex < data.length;
       
       // Generar cursor para la siguiente página
-      const nextCursor = hasMore ? Buffer.from(String(endIndex)).toString('base64') : undefined;
+      const nextCursor = hasMore ? btoa(String(endIndex)) : undefined;
       
       return {
         data: paginatedData,

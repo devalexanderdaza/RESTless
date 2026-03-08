@@ -29,5 +29,15 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: []
+  },
+  test: {
+    environment: 'node',
+    globals: true,
+    include: ['src/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/core/**/*.ts'],
+      exclude: ['src/ui/**', 'src/main.ts', 'src/index.ts']
+    }
   }
 });

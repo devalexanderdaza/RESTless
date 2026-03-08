@@ -1,5 +1,5 @@
 import { Database } from '../db';
-import { SchemaDefinition, Relation, ReferenceAction } from './types';
+import { SchemaDefinition, Relation } from './types';
 
 /**
  * Gestor de relaciones entre colecciones
