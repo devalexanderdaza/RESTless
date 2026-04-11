@@ -28,6 +28,7 @@ TECHNICAL_REPORT.md
 package-lock.json
 restless-data.json
 
+_bmad/
 ai/
 .claude/
 .oac.json
