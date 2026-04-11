@@ -23,7 +23,14 @@ dist-ssr
 *.sln
 *.sw?
 
-# Mac
 ROUTE_MAP.md
+TECHNICAL_REPORT.md
 package-lock.json
 restless-data.json
+
+ai/
+.claude/
+.oac.json
+
+coverage/
+TECH_REPORT.md
