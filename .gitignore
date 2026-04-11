@@ -31,7 +31,9 @@ restless-data.json
 _bmad/
 ai/
 .claude/
+.opencode/
 .oac.json
 
 coverage/
 TECH_REPORT.md
+install.sh
