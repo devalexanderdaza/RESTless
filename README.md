@@ -418,7 +418,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) f
 ## 👨‍💻 Author
 
 **Alexander Daza**
-- Website: [alexanderdaza.com](https://www.alexanderdaza.dev)
+- Website: [alexanderdaza.com](https://alexanderdaza.com/)
 - GitHub: [@devalexanderdaza](https://github.com/devalexanderdaza)
 - LinkedIn: [in/devalexanderdaza](https://linkedin.com/in/devalexanderdaza)
 
@@ -435,5 +435,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) f
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="https://github.com/devalexanderdaza">Alexander Daza</a>
+  Made with ❤️ by <a href="https://alexanderdaza.com/">Alexander Daza</a>
 </p>
